@@ -40,4 +40,5 @@ WORKDIR /cupy
 
 ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
 
-RUN CUPY_NUM_BUILD_JOBS=$JOBS; python3 setup.py bdist_wheel
+RUN python3 setup.py build -j${JOBS}
+RUN python3 setup.py bdist_wheel 
