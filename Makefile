@@ -2,12 +2,13 @@ CUPY_VERSION?=8.2.0
 SCIKITLEARN_VERSION?=0.23.2
 STATSMODELS_VERSION?=0.12.1
 LLVMLITE_VERSION?=0.32.0
+MATPLOTLIB_VERSION?=3.3.3
 
 MAKE_PID := $(shell echo $$PPID)
 JOB_FLAG := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
 JOBS     := $(subst -j,,$(JOB_FLAG))
 
-all: cupy scikitlearn statsmodels
+all: cupy scikitlearn statsmodels llvmlite matplotlib
 
 cupy:
 	docker build -t aarch64-cupy:$(CUPY_VERSION) \
@@ -40,3 +41,11 @@ llvmlite:
 	docker create -ti --name llvmlite-build aarch64-llvmlite:$(LLVMLITE_VERSION)
 	docker cp llvmlite-build:/llvmlite/dist/ ./
 	docker rm -f llvmlite-build
+
+matplotlib:
+		docker build -t aarch64-matplotlib:$(MATPLOTLIB_VERSION) \
+		--build-arg "MATPLOTLIB=$(MATPLOTLIB_VERSION)" --build-arg "JOBS=$(JOBS)" \
+		-f matplotlib.Dockerfile .
+	docker create -ti --name matplotlib-build aarch64-matplotlib:$(MATPLOTLIB_VERSION)
+	docker cp matplotlib-build:/matplotlib/dist/ ./
+	docker rm -f matplotlib-build
