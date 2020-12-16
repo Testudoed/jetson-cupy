@@ -8,6 +8,10 @@ MAKE_PID := $(shell echo $$PPID)
 JOB_FLAG := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
 JOBS     := $(subst -j,,$(JOB_FLAG))
 
+ifndef JOBS
+JOBS:=1
+endif
+
 all: cupy scikitlearn statsmodels llvmlite matplotlib
 
 cupy:
