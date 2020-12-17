@@ -1,4 +1,4 @@
-FROM arm64v8/ubuntu:18.04 as base
+FROM arm64v8/python:3.7-buster 
 
 ARG CUDA=10.2
 ARG RELEASE=r32.4
@@ -18,19 +18,9 @@ ENV CUDA_VERSION $CUDA
 RUN CUDAPKG=$(echo $CUDA_VERSION | sed 's/\./-/'); \
     apt-get update && apt-get install -y --no-install-recommends \
     cuda-toolkit-$CUDAPKG \
-    git \
-    build-essential \
-    python3.7 \
-    python3.7-dev \
-    python3-pip \
-    python3-setuptools \
-    python3-wheel \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 RUN ln -s cuda-$CUDA_VERSION /usr/local/cuda 
-
-RUN rm /usr/bin/python3 && \
-    ln -s python3.7 /usr/bin/python3
 
 RUN python3 -m pip install -U setuptools pip wheel
 RUN python3 -m pip install Cython
@@ -40,5 +30,6 @@ WORKDIR /cupy
 
 ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
 
-RUN python3 setup.py build -j${JOBS}
-RUN python3 setup.py bdist_wheel 
+RUN python3 setup.py build -j$JOBS 
+RUN CUDAPKG=$(echo $CUDA_VERSION | sed 's/\.//'); \ 
+    python3 setup.py bdist_wheel --cupy-package-name=cupy-cuda$CUDAPKG 
