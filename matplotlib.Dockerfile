@@ -9,6 +9,5 @@ RUN git clone --recursive https://github.com/matplotlib/matplotlib.git --branch 
 
 WORKDIR /matplotlib
 
-ENV CFLAGS='-fno-lto'
 RUN python3 setup.py build -j${JOBS}
 RUN python3 setup.py bdist_wheel
